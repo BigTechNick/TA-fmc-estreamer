@@ -1,11 +1,11 @@
 {
   "schemaVersion": "2.0.0",
   "info": {
-    "title": "Nikhil Chawla Add-on for Cisco Secure Firewall eStreamer (FMC)",
+    "title": "eStreamer Add-on for Cisco Secure Firewall (FMC/Firepower)",
     "id": {
       "group": null,
       "name": "TA-fmc-estreamer",
-      "version": "2.2.1"
+      "version": "2.2.2"
     },
     "author": [
       {

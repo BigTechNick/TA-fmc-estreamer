@@ -1,8 +1,7 @@
 [fmc_estreamer://<name>]
 * One input per FMC. <name>: letters, digits, '.', '_' or '-' (max 64),
   starting with a letter or digit.
-* Created and edited in Splunk Web: app "Nikhil Chawla Add-on for Cisco
-  Secure Firewall eStreamer (FMC)" > Inputs (or Settings > Data inputs > FMC
+* Created and edited in Splunk Web: app "eStreamer Add-on for Cisco Secure Firewall (FMC/Firepower)" > Inputs (or Settings > Data inputs > FMC
   eStreamer events).
   Delete inputs on the Inputs page: it also removes the input's file monitor
   and event files.

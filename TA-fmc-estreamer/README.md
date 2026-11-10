@@ -1,6 +1,6 @@
-# Nikhil Chawla Add-on for Cisco Secure Firewall eStreamer (FMC)
+# eStreamer Add-on for Cisco Secure Firewall (FMC/Firepower)
 
-Version 2.2.1. App ID (folder name): `TA-fmc-estreamer`.
+Version 2.2.2. App ID (folder name): `TA-fmc-estreamer`.
 
 Collects events from a Secure Firewall Management Center (FMC) over eStreamer:
 
@@ -85,7 +85,7 @@ be switched off once this one is verified.
 
 ## Set up an FMC
 
-1. Open the add-on (**Nikhil Chawla Add-on for Cisco Secure Firewall eStreamer (FMC)**) and go to **Inputs**.
+1. Open the add-on (**eStreamer Add-on for Cisco Secure Firewall (FMC/Firepower)**) and go to **Inputs**.
 2. **Upload certificate**: give it a name, choose the PKCS12 file and type its
    password (or choose PEM and pick or paste the certificate and key).
 3. **Add input**:
@@ -390,6 +390,10 @@ connection's bookmark; the FQE connection starts at the current time (or from
 
 ## Changes
 
+* 2.2.2
+  * Renamed to "eStreamer Add-on for Cisco Secure Firewall (FMC/Firepower)"
+    (Splunkbase listing name). The app ID stays `TA-fmc-estreamer`, so upgrades,
+    inputs, certificates and bookmarks are not affected.
 * 2.2.1
   * Event file names are never used twice. A writer that needs a second new
     file within one second now waits for the next second. Before, it named files

@@ -1,6 +1,6 @@
-# Nikhil Chawla Add-on for Cisco Secure Firewall eStreamer (FMC)
+# eStreamer Add-on for Cisco Secure Firewall (FMC/Firepower)
 
-Splunk add-on `TA-fmc-estreamer`, version 2.2.1.
+Splunk add-on `TA-fmc-estreamer`, version 2.2.2.
 
 Collects events from a Secure Firewall Management Center (FMC) over eStreamer: connection, policy violation, VPN, FireAMP, file, intrusion and packet events, for Splunk as sourcetype cisco:sfw:estreamer and/or as CEF files. CIM mapping needs the Cisco Security Cloud app on the search heads. Inputs, certificates and status are managed in Splunk Web. Not affiliated with Cisco.
 
