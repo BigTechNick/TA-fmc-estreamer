@@ -1,0 +1,25 @@
+TA-fmc-estreamer (FMC eStreamer add-on for Splunk)
+Copyright 2026 Nikhil Chawla
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This add-on is an independent project. It is not affiliated with, endorsed by
+or supported by Cisco Systems, Inc. Cisco, Cisco Secure Firewall, Firepower
+and FMC are trademarks or registered trademarks of Cisco Systems, Inc. and/or
+its affiliates. Splunk is a trademark of Splunk LLC. Other names are the
+trademarks of their owners and are used here only to describe what the
+add-on works with.
+
+The eStreamer client is written from the protocol as documented in Cisco's
+public "Secure Firewall Management Center eStreamer Integration Guide". The
+add-on contains no Cisco code.
+
+Output field names are kept the same as earlier versions of this add-on,
+which decoded with Cisco's eNcore client library, so existing searches keep
+working. They therefore follow that library's output names and spellings
+(for example qoa_rule_id).
+
+In bin/fmc_estreamer_tables.py, the IP protocol and TLS cipher suite names
+are from the IANA registries. The SSL action, flow status, certificate
+status, flow flag, flow message and rule reason names are from the code
+tables in Cisco's eStreamer Integration Guide.

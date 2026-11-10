@@ -1,0 +1,10 @@
+# Build output
+dist/
+*.tgz
+*.spl
+# Local AppInspect reports
+*-cloud.json
+# Python / macOS
+__pycache__/
+*.pyc
+.DS_Store

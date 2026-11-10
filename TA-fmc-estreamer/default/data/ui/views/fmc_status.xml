@@ -1,0 +1,224 @@
+<form version="1.1" theme="light">
+  <label>Status</label>
+  <description>Collector health per FMC input: throughput, how far behind, connections, errors, and what reached the index. Collector logs come from index _internal; events from the index entered below (* = all indexes, slower). Self-contained: this XML also works pasted into a classic dashboard on a search head without the add-on.</description>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" token="global_time" searchWhenChanged="true">
+      <label>Time range</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="idx" searchWhenChanged="true">
+      <label>Event index (* = all)</label>
+      <default>*</default>
+    </input>
+    <input type="dropdown" token="input" searchWhenChanged="true">
+      <label>Input</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <fieldForLabel>input</fieldForLabel>
+      <fieldForValue>input</fieldForValue>
+      <search>
+        <query><![CDATA[| tstats count where index=_internal sourcetype="fmc:estreamer:log" by source
+| rex field=source "fmc_estreamer_(?<input>[^/]+?)(?:_console)?\.log(?:\.\d+)?$$"
+| stats sum(count) as count by input
+| sort input]]></query>
+        <earliest>-7d</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Collectors now (last 15 minutes)</title>
+      <table>
+        <search>
+          <query><![CDATA[index=_internal sourcetype="fmc:estreamer:log" (source="*fmc_estreamer_$input$.log*" OR source="*fmc_estreamer_$input$_console.log*")
+| rex field=source "fmc_estreamer_(?<input>[^/]+?)(?:_console)?\.log(?:\.\d+)?$$"
+| rex "^\S+ \S+ (?:worker-(?<worker>\d+) )?(?<log_level>DEBUG|INFO|WARNING|ERROR|CRITICAL) (?<message>.*)"
+| rex field=message "^written (?<written_eps>\d+)/s, records (?<records_eps>\d+)/s, metadata \d+, skipped \d+, errors (?<errors>\d+), inflight (?<inflight>\d+), bookmark (?<bookmark>\S+), behind (?<behind_min>-?[\d.]+) min(?:, buffer (?<buffer_gb>[\d.]+) GB(?<paused> PAUSED)?)?"
+| rex field=message "^fqe: written (?<fqe_eps>[\d.]+)/s, errors (?<fqe_errors>\d+), (?<fqe_state>connected|not connected), bookmark \S+, behind (?<fqe_behind_min>-?[\d.]+) min"
+| rex field=message "^connected to (?<fmc_host>[^\s,]+):\d+, requesting from"
+| eval err_time=if(log_level IN ("ERROR","CRITICAL"), _time, null()), err=if(log_level IN ("ERROR","CRITICAL"), message, null()), stats_time=if(isnotnull(behind_min), _time, null())
+| stats latest(_time) as last_log max(stats_time) as last_stats latest(behind_min) as behind_min latest(written_eps) as written_per_sec latest(records_eps) as records_per_sec latest(errors) as decode_errors_last_min latest(inflight) as inflight latest(buffer_gb) as buffer_gb latest(paused) as paused latest(bookmark) as bookmark latest(fqe_state) as fqe latest(fqe_eps) as fqe_written_per_sec latest(fqe_errors) as fqe_errors_last_min latest(fqe_behind_min) as fqe_behind_min max(err_time) as err_time latest(err) as last_error latest(fmc_host) as fmc by input
+| eval status=case(now()-last_log>180, "NO RECENT LOG", isnotnull(err_time) AND err_time>=coalesce(last_stats,0), "ERROR", isnotnull(paused), "PAUSED", isnull(last_stats), "STARTING", tonumber(behind_min)>5, "BEHIND", fqe="not connected", "FQE NOT CONNECTED", true(), "OK")
+| eval last_log=strftime(last_log, "%F %T"), last_error=if(status="ERROR", last_error, null())
+| table input fmc status behind_min written_per_sec records_per_sec decode_errors_last_min inflight buffer_gb bookmark fqe fqe_written_per_sec fqe_errors_last_min fqe_behind_min last_log last_error
+| sort input]]></query>
+          <earliest>-15m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">20</option>
+        <option name="drilldown">none</option>
+        <format type="color" field="status">
+          <colorPalette type="map">{"OK":#2E8540,"STARTING":#3C6FB4,"PAUSED":#B26B00,"BEHIND":#B26B00,"NO RECENT LOG":#B26B00,"FQE NOT CONNECTED":#B26B00,"ERROR":#C42B1C}</colorPalette>
+        </format>
+        <format type="color" field="behind_min">
+          <colorPalette type="list">[#2E8540,#B26B00,#C42B1C]</colorPalette>
+          <scale type="threshold">2,10</scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Events written per second</title>
+      <chart>
+        <search>
+          <query><![CDATA[index=_internal sourcetype="fmc:estreamer:log" source="*fmc_estreamer_$input$.log*" (("written" "records") OR "fqe: written")
+| rex field=source "fmc_estreamer_(?<input>[^/]+?)(?:_console)?\.log(?:\.\d+)?$$"
+| rex "^\S+ \S+ (?:worker-\d+ )?INFO written (?<written_eps>\d+)/s, records "
+| rex "^\S+ \S+ (?:worker-\d+ )?INFO fqe: written (?<fqe_eps>[\d.]+)/s"
+| eval series=if(isnotnull(fqe_eps), input." (FQE)", input), eps=coalesce(fqe_eps, written_eps)
+| where isnotnull(eps)
+| timechart avg(eps) by series]]></query>
+          <earliest>$global_time.earliest$</earliest>
+          <latest>$global_time.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisTitleY.text">events/s</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="height">300</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Minutes behind the FMC (bookmark age, binary connection)</title>
+      <chart>
+        <search>
+          <query><![CDATA[index=_internal sourcetype="fmc:estreamer:log" source="*fmc_estreamer_$input$.log*" "written" "records" "behind"
+| rex field=source "fmc_estreamer_(?<input>[^/]+?)(?:_console)?\.log(?:\.\d+)?$$"
+| rex "^\S+ \S+ (?:worker-\d+ )?INFO written \d+/s, records .*, behind (?<behind_min>-?[\d.]+) min"
+| where isnotnull(behind_min)
+| timechart max(behind_min) by input]]></query>
+          <earliest>$global_time.earliest$</earliest>
+          <latest>$global_time.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisTitleY.text">minutes</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="height">300</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Connection log: starts, connects, disconnects, stops</title>
+      <table>
+        <search>
+          <query><![CDATA[index=_internal sourcetype="fmc:estreamer:log" (source="*fmc_estreamer_$input$.log*" OR source="*fmc_estreamer_$input$_console.log*") ("starting input" OR "connected to" OR "streaming request sent" OR "session ended" OR "reconnecting" OR "collector stopped" OR "FMC error" OR "no bookmark" OR "client certificate" OR "file monitor" OR "missing or unreadable" OR "exited with code" OR "collector process is gone" OR "buffer full" OR "resuming")
+| rex field=source "fmc_estreamer_(?<input>[^/]+?)(?:_console)?\.log(?:\.\d+)?$$"
+| rex "^\S+ \S+ (?:worker-(?<worker>\d+) )?(?<log_level>DEBUG|INFO|WARNING|ERROR|CRITICAL) (?<message>.*)"
+| table _time input log_level message
+| sort - _time]]></query>
+          <earliest>$global_time.earliest$</earliest>
+          <latest>$global_time.latest$</latest>
+        </search>
+        <option name="count">15</option>
+        <option name="drilldown">none</option>
+        <format type="color" field="log_level">
+          <colorPalette type="map">{"ERROR":#C42B1C,"CRITICAL":#C42B1C,"WARNING":#B26B00,"INFO":#3C6FB4}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Errors and warnings (grouped)</title>
+      <table>
+        <search>
+          <query><![CDATA[index=_internal sourcetype="fmc:estreamer:log" (source="*fmc_estreamer_$input$.log*" OR source="*fmc_estreamer_$input$_console.log*") (WARNING OR ERROR OR CRITICAL)
+| rex field=source "fmc_estreamer_(?<input>[^/]+?)(?:_console)?\.log(?:\.\d+)?$$"
+| rex "^\S+ \S+ (?:worker-(?<worker>\d+) )?(?<log_level>DEBUG|INFO|WARNING|ERROR|CRITICAL) (?<message>.*)"
+| search log_level IN (WARNING, ERROR, CRITICAL)
+| eval pattern=replace(replace(message, "record=\S+", "record=..."), "\d+", "N")
+| stats count latest(_time) as last_seen latest(message) as latest_example by input log_level pattern
+| sort - last_seen
+| eval last_seen=strftime(last_seen, "%F %T")
+| table input log_level count last_seen latest_example]]></query>
+          <earliest>$global_time.earliest$</earliest>
+          <latest>$global_time.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <format type="color" field="log_level">
+          <colorPalette type="map">{"ERROR":#C42B1C,"CRITICAL":#C42B1C,"WARNING":#B26B00,"INFO":#3C6FB4}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Indexed events per FMC (10-minute buckets)</title>
+      <chart>
+        <search>
+          <query><![CDATA[| tstats count where index="$idx$" sourcetype="cisco:sfw:estreamer" source="*_w*.log" by _time host span=10m
+| timechart span=10m sum(count) by host]]></query>
+          <earliest>$global_time.earliest$</earliest>
+          <latest>$global_time.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.axisTitleY.text">events</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="height">320</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Index delay per FMC (sample of the last 5 minutes)</title>
+      <table>
+        <search>
+          <query><![CDATA[index="$idx$" sourcetype="cisco:sfw:estreamer" source="*_w*.log"
+| head 20000
+| eval lag=_indextime-_time
+| stats count as sampled avg(lag) as avg_delay_sec perc95(lag) as p95_delay_sec max(_time) as newest by host
+| eval avg_delay_sec=round(avg_delay_sec, 0), p95_delay_sec=round(p95_delay_sec, 0), newest_age_sec=now()-newest, newest=strftime(newest, "%F %T")
+| table host sampled avg_delay_sec p95_delay_sec newest newest_age_sec]]></query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <format type="color" field="p95_delay_sec">
+          <colorPalette type="list">[#2E8540,#B26B00,#C42B1C]</colorPalette>
+          <scale type="threshold">180,600</scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Splunk messages about the inputs (start-up and script errors)</title>
+      <table>
+        <search>
+          <query><![CDATA[index=_internal sourcetype=splunkd (component=ExecProcessor OR component=ModularInputs) "fmc_estreamer" log_level!=INFO
+| eval message=coalesce(event_message, _raw)
+| table _time host log_level component message
+| sort - _time]]></query>
+          <earliest>$global_time.earliest$</earliest>
+          <latest>$global_time.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Changes made on the Inputs page</title>
+      <table>
+        <search>
+          <query><![CDATA[index=_internal sourcetype="fmc:estreamer:webapi"
+| rex "^\S+ \S+ (?<log_level>[A-Z]+) (?<message>.*)"
+| table _time host log_level message
+| sort - _time]]></query>
+          <earliest>$global_time.earliest$</earliest>
+          <latest>$global_time.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+</form>

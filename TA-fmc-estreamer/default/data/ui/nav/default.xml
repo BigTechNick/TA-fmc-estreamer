@@ -1,0 +1,8 @@
+<nav search_view="search" color="#0B4F6C">
+  <view name="fmc_status" default="true"/>
+  <view name="fmc_inputs"/>
+  <view name="search"/>
+  <collection label="More">
+    <a href="/manager/TA-fmc-estreamer/data/inputs/fmc_estreamer">Inputs in Settings &gt; Data inputs</a>
+  </collection>
+</nav>

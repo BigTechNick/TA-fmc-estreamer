@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "2.0.0",
+  "info": {
+    "title": "Nikhil Chawla Add-on for Cisco Secure Firewall eStreamer (FMC)",
+    "id": {
+      "group": null,
+      "name": "TA-fmc-estreamer",
+      "version": "2.2.1"
+    },
+    "author": [
+      {
+        "name": "Nikhil Chawla",
+        "email": null,
+        "company": null
+      }
+    ],
+    "releaseDate": null,
+    "description": "Collects events from a Secure Firewall Management Center (FMC) over eStreamer: connection, policy violation, VPN login/logoff, FireAMP, file, intrusion and intrusion packet events. For Splunk as sourcetype cisco:sfw:estreamer, with the field names the Cisco Security Cloud app maps to CIM (that app is required on the search heads for CIM mapping), and/or as CEF files for a syslog agent. Inputs, client certificates and collector status are managed in Splunk Web. Independent project, not affiliated with or endorsed by Cisco.",
+    "classification": {
+      "intendedAudience": "Security",
+      "categories": [
+        "Security, Fraud & Compliance"
+      ],
+      "developmentStatus": "Production/Stable"
+    },
+    "commonInformationModels": null,
+    "license": {
+      "name": "Apache-2.0",
+      "text": "LICENSE",
+      "uri": "https://www.apache.org/licenses/LICENSE-2.0"
+    },
+    "privacyPolicy": {
+      "name": null,
+      "text": null,
+      "uri": null
+    },
+    "releaseNotes": {
+      "name": "README",
+      "text": "README.md",
+      "uri": null
+    }
+  },
+  "dependencies": null,
+  "tasks": null,
+  "inputGroups": null,
+  "incompatibleApps": null,
+  "platformRequirements": null,
+  "supportedDeployments": [
+    "_standalone",
+    "_distributed"
+  ],
+  "targetWorkloads": [
+    "_search_heads",
+    "_forwarders"
+  ]
+}

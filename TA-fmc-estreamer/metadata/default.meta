@@ -1,0 +1,27 @@
+# Readable by everyone, changed by admins. Search-time extractions are shared so
+# the collector's logs parse in any app.
+[]
+access = read : [ * ], write : [ admin, sc_admin ]
+export = none
+
+[props]
+export = system
+
+[eventtypes]
+export = system
+
+[tags]
+export = system
+
+[transforms]
+export = system
+
+[lookups]
+export = system
+
+[views]
+access = read : [ * ], write : [ admin, sc_admin ]
+
+# Client certificates and keys (credential store): admins only.
+[passwords]
+access = read : [ admin, sc_admin ], write : [ admin, sc_admin ]

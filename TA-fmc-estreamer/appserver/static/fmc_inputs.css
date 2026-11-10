@@ -1,0 +1,49 @@
+/* SPDX-License-Identifier: Apache-2.0 - Copyright 2026 Nikhil Chawla */
+/* TA-fmc-estreamer - Inputs page. Neutral colors so it reads in light and dark themes. */
+#fmc-inputs-app { font-size: 14px; line-height: 1.45; max-width: 1400px; }
+#fmc-inputs-app h2 { font-size: 18px; font-weight: 600; margin: 0; }
+.fmc-section { margin: 4px 0 28px; }
+.fmc-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 6px; }
+.fmc-head .btn { margin-left: 6px; }
+.fmc-help { opacity: 0.7; font-size: 12px; margin: 2px 0 8px; }
+.fmc-table { width: 100%; }
+.fmc-table td { vertical-align: top; }
+.fmc-empty { opacity: 0.7; font-style: italic; padding: 14px 8px !important; }
+.fmc-actions { display: flex; flex-wrap: wrap; gap: 4px; }
+.fmc-sub { opacity: 0.75; font-size: 12px; }
+.fmc-badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 12px; font-weight: 600;
+    border: 1px solid currentColor; }
+.fmc-good { color: #2e8540; }
+.fmc-warn, .fmc-warntext { color: #b26b00; }
+.fmc-bad, .fmc-errtext, .fmc-danger { color: #c42b1c; }
+.fmc-off { color: #7a7f87; }
+.fmc-wait { color: #3c6fb4; }
+.fmc-flash { padding: 8px 12px; border-radius: 4px; margin: 0 0 12px; border: 1px solid; }
+.fmc-flash.fmc-ok { border-color: #2e8540; background: rgba(46, 133, 64, 0.08); }
+.fmc-flash.fmc-error { border-color: #c42b1c; background: rgba(196, 43, 28, 0.08); color: #c42b1c; }
+.fmc-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); z-index: 2000;
+    display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 40px 16px; }
+.fmc-modal { background: #fff; color: #1d1f24; border-radius: 6px; width: 100%; max-width: 620px;
+    padding: 20px 24px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35); }
+.fmc-modal h3 { margin: 0 0 14px; font-size: 18px; }
+.fmc-field { margin-bottom: 12px; }
+.fmc-field > label { display: block; font-weight: 600; margin-bottom: 3px; }
+.fmc-field input[type=text], .fmc-field input[type=password], .fmc-field select, .fmc-field textarea {
+    width: 100%; box-sizing: border-box; }
+.fmc-field textarea { font-family: Menlo, Consolas, monospace; font-size: 11px; margin-top: 4px; }
+.fmc-static { padding: 4px 0; font-weight: 600; }
+.fmc-toggle { display: inline-block; margin: 2px 0 10px; }
+.fmc-advanced { border-left: 3px solid rgba(127, 127, 127, 0.3); padding-left: 12px; }
+.fmc-form-error { color: #c42b1c; margin: 6px 0; font-weight: 600; }
+.fmc-modal-buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+@media (max-width: 760px) {
+    .fmc-head { flex-direction: column; align-items: flex-start; }
+    .fmc-table th:nth-child(3), .fmc-table td:nth-child(3), .fmc-table th:nth-child(5), .fmc-table td:nth-child(5) { display: none; }
+}
+
+.fmc-warnbox { margin: 2px 0 10px; padding: 8px 10px; border-left: 3px solid #B26B00; background: rgba(178, 107, 0, 0.08); font-size: 12px; line-height: 1.4; }
+.fmc-path { font-family: Menlo, Consolas, monospace; font-size: 12px; word-break: break-all; }
+
+.fmc-checkline { display: block; font-weight: normal; margin: 2px 0; }
+.fmc-checkline .fmc-help { display: inline; }
+.fmc-check { margin: 0 4px 0 0; vertical-align: middle; }
