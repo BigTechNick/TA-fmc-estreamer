@@ -23,10 +23,10 @@ Good: `RESULT: OK`. Then AppInspect:
 splunk-appinspect inspect dist/TA-fmc-estreamer-<version>.tgz --mode precert --included-tags cloud
 ```
 
-## Releases
+## Packages
 
-Each version is tagged `v<version>`. Its GitHub release has the exact package uploaded to
-Splunkbase attached, with its md5.
+`packages/` holds each version's package exactly as uploaded to Splunkbase, with `MD5SUMS`.
+Each version is also its own commit (`git log`).
 
 ## License
 
